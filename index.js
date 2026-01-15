@@ -2,7 +2,7 @@ const express = require('express');
 const { Database } = require('@sqlitecloud/drivers');
 
 const app = express();
-const PORT = 3000;
+const PORT = 5000;
 
 app.use(express.urlencoded({ extended: true }));
 
@@ -197,23 +197,13 @@ app.post('/question/:id', async (req, res) => {
 
     const isCorrect = userAnswer.toLowerCase() === correctAnswer.toLowerCase();
 
-    // ONLY mark as used if correct
-    if (isCorrect) {
-        try {
-            await db.sql`UPDATE questions SET used = 1 WHERE id = ${q.id}`;
-            console.log(`Question ${q.id} marked as used (correct answer)`);
-        } catch (err) {
-            console.error('Failed to update used flag:', err.message);
-        }
-    }
-
+    // Hide correct answer from feedback
     const feedback = `
         <div style="padding:20px; margin:25px 0; border-radius:8px; font-size:18px;
                     background:${isCorrect ? '#d4edda' : '#f8d7da'};
                     border-left:6px solid ${isCorrect ? '#28a745' : '#dc3545'};">
             <strong style="font-size:22px;">${isCorrect ? '✓ Correct! This question is now mastered.' : '✗ Wrong'}</strong><br><br>
             <strong>Your answer:</strong> "${userAnswer || '(empty)'}"<br>
-            <strong>Correct answer:</strong> "${correctAnswer}"
             ${isCorrect ? '<br><em>You won\'t see this question again until restarting the quiz.</em>' : '<br><em>Try again — it may appear in future quizzes until you get it right!</em>'}
         </div>`;
 
