@@ -61,7 +61,7 @@ async function startNewQuiz() {
         const limit = Math.min(5, available);
 
         const rows = await db.sql`
-            SELECT id, question, correct_answer 
+            SELECT id, question, correct_answer,imgUrl
             FROM questions 
             WHERE used = 0 
             ORDER BY RANDOM() 
@@ -138,7 +138,7 @@ app.get('/question/:id', (req, res) => {
 
     const q = currentQuestions[id - 1];
 
-    const html = `<!DOCTYPE html>
+    let html = `<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -166,7 +166,7 @@ app.get('/question/:id', (req, res) => {
     <div class="question-box">
         <strong style="font-size:20px;">Question ${id}:</strong>
         <p style="font-size: 22px; margin: 25px 0;">${q.question}</p>
-
+        #imgHolder
         <form action="/question/${id}" method="POST">
             <input type="text" name="user_answer" placeholder="Your answer" required autofocus>
             <button type="submit">Submit Answer</button>
@@ -177,7 +177,11 @@ app.get('/question/:id', (req, res) => {
     <div class="restart"><a href="/">← Start New Quiz (resets all questions)</a></div>
 </body>
 </html>`;
-
+    if(q.imgUrl == null)
+        html=html.replace('#imgHolder','');
+    else
+        html=html.replace('#imgHolder',`<img src="${q.imgUrl}" alt="Question Image" style="max-width: 50%; height: auto; margin: 20px 0;">`);
+    
     res.send(html);
 });
 
